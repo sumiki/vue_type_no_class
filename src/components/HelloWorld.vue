@@ -1,46 +1,72 @@
-<template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
-</template>
-
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, SetupContext, ref, reactive, Ref, computed } from 'vue';
+type Props = {
+    msg: string;
+};
 
 export default defineComponent({
-  name: 'HelloWorld',
-  props: {
-    msg: String,
-  },
+    props: {
+        msg: {
+            type: String,
+            default: "default Value"
+        }
+    },
+    setup(props: Props, context: SetupContext) {
+        console.log(props);
+        console.log(context);
+        const customMessage: Ref<string> = ref('abc')
+        const messages: Ref<string[]> = ref([]);
+        const state = reactive({
+            content1: 'content1',
+            content2: 'content2',
+            count: 0,
+
+        })
+
+        function addMessage() {
+            console.log(customMessage);
+            messages.value.push(customMessage.value);
+        }
+
+        function handleSwitch( e: Event ){
+            e.preventDefault()
+            state.count = state.count + 1;
+            const c1 = state.content1;
+            const c2 = state.content2;
+            state.content1 = c2;
+            state.content2 = c1;
+        }
+
+        const counter = computed(() => `${ state.count } times`)
+
+        return {
+            customMessage,
+            messages,
+            state,
+            addMessage,
+            handleSwitch,
+            counter
+        }
+    }
 });
 </script>
+
+<template>
+    <div class="hello">
+        <h1>{{ msg }}</h1>
+        <div>
+            <input type="text" v-model="customMessage"><input type="submit" text="Add" @click="addMessage">
+            <div>{{customMessage}}</div>
+            <hr>
+            <div v-for="(message, index) in messages" v-bind:key="index">{{message}}</div>
+            <hr>
+            <h5>Reactive</h5>
+            <div>{{ counter }}</div>
+            <div><a href="#" @click="handleSwitch" >{{ state.content1 }}</a></div>
+            <div>{{ state.content2 }}</div>
+        </div>
+    </div>
+</template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
